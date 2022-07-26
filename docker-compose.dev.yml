@@ -1,0 +1,31 @@
+services:
+  django:
+    container_name: dj_rest
+    build: .
+    working_dir: /home/app/django_rest/src
+    env_file:
+      - ./envs/postgres.env
+      - ./envs/django.env
+    command: poetry run python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./src:/home/app/django_rest/src
+      - logs:/home/app/data/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    user: app
+
+  postgres:
+    container_name: dj_rest-postgres
+    image: postgres:14.4-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./envs/postgres.env
+    ports:
+      - "5432:5432"
+
+volumes:
+  logs:
+  postgres_data:
