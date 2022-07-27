@@ -7,14 +7,13 @@ authors = ["Aleksandr Maksimchuk"]
 [tool.poetry.dependencies]
 python = "^3.10"
 Django = "^3.2.0"
-django-environ = "==0.9.0"
+django-environ = "^0.9.0"
 psycopg2 = "^2.9.3"
+djangorestframework = "^3.13.1"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.10.1"
 flake8 = "^4.0.1"
-mypy = "^0.971"
-django-stubs = "^1.12.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
