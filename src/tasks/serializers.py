@@ -11,7 +11,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'created_by_id',
             'created_at',
             'filename',
-            'source',
+            'storage',
             'status',
             'result',
             'fail_reason',

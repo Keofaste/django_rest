@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import environ
@@ -21,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'tasks',
 ]
 
@@ -63,7 +63,7 @@ DATABASES = {
         'PASSWORD': env('POSTGRES_PASSWORD'),
         'HOST': 'postgres',
         'PORT': '5432',
-    }
+    },
 }
 
 
@@ -97,9 +97,9 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGGING
-LOG_PATH = '/home/app/data/logs/app'
-if not os.path.exists(LOG_PATH):
-    os.makedirs(LOG_PATH)
+LOG_PATH = Path.home() / 'data' / 'logs' / 'app'
+if not LOG_PATH.exists():
+    LOG_PATH.mkdir(parents=True)
 
 LOGGING = {
     'version': 1,
@@ -120,7 +120,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'console'
+            'formatter': 'console',
         },
         'django': {
             'level': 'ERROR',
@@ -128,7 +128,7 @@ LOGGING = {
             'formatter': 'main_formatter',
             'maxBytes': 1024 * 1024 * 5,  # 5 MB
             'backupCount': 7,
-            'filename': LOG_PATH + '/django.log'
+            'filename': LOG_PATH / 'django.log',
         },
     },
     'loggers': {
@@ -139,3 +139,10 @@ LOGGING = {
         },
     },
 }
+
+
+CSV_PATH = Path.home() / 'data' / 'csv'
+if not CSV_PATH.exists():
+    CSV_PATH.mkdir(parents=True)
+
+MAX_FILE_RETRIEVE_ATTEMPTS = 3
