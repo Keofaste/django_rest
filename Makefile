@@ -10,7 +10,7 @@ build:
 dev-run: dev-stop
 	docker-compose -f ./docker-compose.dev.yml up -d
 dev-run-celery:
-	docker-compose -f ./docker-compose.dev.yml up -d celery celery-beat
+	docker-compose -f ./docker-compose.dev.yml up -d celery
 dev-stop:
 	docker-compose -f ./docker-compose.dev.yml down
 dev-build: dev-stop

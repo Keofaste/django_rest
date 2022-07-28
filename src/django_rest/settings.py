@@ -66,6 +66,12 @@ DATABASES = {
     },
 }
 
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -130,11 +136,24 @@ LOGGING = {
             'backupCount': 7,
             'filename': LOG_PATH / 'django.log',
         },
+        'tasks': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'main_formatter',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 7,
+            'filename': LOG_PATH / 'tasks.log',
+        },
     },
     'loggers': {
         'django': {
             'handlers': ['console', 'django'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'tasks': {
+            'handlers': ['console', 'tasks'],
+            'level': 'WARNING',
             'propagate': True,
         },
     },

@@ -10,6 +10,7 @@ services:
     volumes:
       - ./src:/home/app/django_rest/src
       - logs:/home/app/data/logs
+      - csv_files:/home/app/data/csv
     ports:
       - "8000:8000"
     depends_on:
@@ -26,6 +27,30 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    container_name: dj_rest-redis
+    image: redis:6.2.7-alpine
+    volumes:
+      - redis_data:/data
+
+  celery:
+    container_name: dj_rest-celery
+    build: .
+    working_dir: /home/app/django_rest/src
+    env_file:
+      - ./envs/postgres.env
+      - ./envs/django.env
+    command: poetry run celery -A django_rest worker -l info
+    volumes:
+      - ./src:/home/app/django_rest/src
+      - logs:/home/app/data/logs
+      - csv_files:/home/app/data/csv
+    depends_on:
+      - postgres
+      - redis
+
 volumes:
   logs:
+  csv_files:
   postgres_data:
+  redis_data:

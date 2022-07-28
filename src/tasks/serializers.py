@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Task
+from .tasks import make_task_calculations_task
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -16,3 +17,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'result',
             'fail_reason',
         ]
+
+    def save(self, **kwargs) -> Task:
+        task = super(TaskSerializer, self).save(**kwargs)
+        make_task_calculations_task.delay(task.id)
+        return task

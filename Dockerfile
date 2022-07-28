@@ -10,7 +10,8 @@ USER app
 WORKDIR /home/app/django_rest
 
 RUN mkdir -p /home/app/data/ \
-    /home/app/data/logs/app
+    /home/app/data/logs/app \
+    /home/app/data/csv
 
 RUN curl -sSL https://install.python-poetry.org | python3 - --version $POETRY_VERSION
 ENV PATH=/home/app/.local/bin:$PATH

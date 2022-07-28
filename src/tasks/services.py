@@ -54,7 +54,14 @@ def make_task_calculations(task_id: int):
         task.save()
         return
 
-    df = pd.read_csv(filepath, chunksize=1000)
+    if not filepath.exists():
+        logger.error(f'Task #{task_id} calculation failed: file "{filepath}" does not exists')
+        task.status = Task.Status.FAILED
+        task.fail_reason = 'File not found'
+        task.save()
+        return
+
+    df = pd.read_csv(filepath, chunksize=1000, sep=',')
 
     chunks_sum = None
 
