@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import pandas as pd
 
@@ -13,7 +14,7 @@ class UnknownStorageException(Exception):
     pass
 
 
-def get_csf_filepath(filename: str, storage: Task.Storage):
+def get_csv_filepath(filename: str, storage: Task.Storage):
     match storage:
         case Task.Storage.LOCAL:
             return settings.CSV_PATH / filename
@@ -23,7 +24,21 @@ def get_csf_filepath(filename: str, storage: Task.Storage):
             raise UnknownStorageException()
 
 
-def _save_calculations(task: Task, calculations):
+def _sum_csv_columns(filepath: Path) -> pd.Series:
+    df = pd.read_csv(filepath, chunksize=1000, sep=',')
+
+    chunks_sum = None
+
+    for file in df:
+        if chunks_sum is None:
+            chunks_sum = file[list(file)[9::10]].sum()
+        else:
+            chunks_sum += file[list(file)[9::10]].sum()
+
+    return chunks_sum
+
+
+def _save_calculations(task: Task, calculations: pd.Series):
     if calculations is None:
         task.status = Task.Status.FAILED
         task.fail_reason = 'no columns to sum'
@@ -46,8 +61,8 @@ def make_task_calculations(task_id: int):
         return
 
     try:
-        filepath = get_csf_filepath(task.filename, task.storage)
-    except UnknownStorageException:
+        filepath = get_csv_filepath(task.filename, task.storage)
+    except (UnknownStorageException, NotImplementedError):
         logger.error(f'Task #{task_id} calculation failed: unknown storage "{task.storage}"')
         task.status = Task.Status.FAILED
         task.fail_reason = 'Unknown storage'
@@ -61,14 +76,5 @@ def make_task_calculations(task_id: int):
         task.save()
         return
 
-    df = pd.read_csv(filepath, chunksize=1000, sep=',')
-
-    chunks_sum = None
-
-    for file in df:
-        if chunks_sum is None:
-            chunks_sum = file[list(file)[9::10]].sum()
-        else:
-            chunks_sum += file[list(file)[9::10]].sum()
-
-    _save_calculations(task, chunks_sum)
+    calculations = _sum_csv_columns(filepath)
+    _save_calculations(task, calculations)
