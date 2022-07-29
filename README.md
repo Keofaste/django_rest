@@ -31,11 +31,12 @@
 1. `make build`
 2. `make run`
 3. `docker cp <localfile> dj_rest:/home/app/data/csv/`
+   1. [тестовый файл](data/test.csv)
 4. Создать пользователя:
    1. `docker exec -it dj_rest bash`
    2. `poetry run python manage.py createsuperuser`
-5. войти через [админку](127.0.0.1/admin/login`)
-6. подёргать API можно [тут](127.0.0.1/tasks`)
+5. войти через [админку](http://127.0.0.1/admin/)
+6. подёргать API можно [тут](http://127.0.0.1/tasks)
 
 
 ## Заметки 
