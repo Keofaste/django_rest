@@ -1,0 +1,65 @@
+services:
+  django:
+    container_name: dj_rest
+    build: .
+    working_dir: /home/app/django_rest/src
+    env_file:
+      - ./envs/postgres.env
+      - ./envs/django.env
+    entrypoint: [ "sh", "../entrypoint.sh" ]
+    volumes:
+      - logs:/home/app/data/logs
+      - csv_files:/home/app/data/csv
+      - static:/home/app/data/static
+    expose:
+      - 8000
+    depends_on:
+      - postgres
+    user: app
+
+  postgres:
+    container_name: dj_rest-postgres
+    image: postgres:14.4-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./envs/postgres.env
+
+  redis:
+    container_name: dj_rest-redis
+    image: redis:6.2.7-alpine
+    volumes:
+      - redis_data:/data
+
+  celery:
+    container_name: dj_rest-celery
+    build: .
+    working_dir: /home/app/django_rest/src
+    env_file:
+      - ./envs/postgres.env
+      - ./envs/django.env
+    command: poetry run celery -A django_rest worker -l info
+    volumes:
+      - logs:/home/app/data/logs
+      - csv_files:/home/app/data/csv
+      - static:/home/app/data/static
+    depends_on:
+      - postgres
+      - redis
+  nginx:
+    container_name: dj_rest-nginx
+    image: nginx:1.21-alpine
+    ports:
+      - "80:80"
+    depends_on:
+      - django
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - static:/home/app/data/static
+
+volumes:
+  logs:
+  csv_files:
+  postgres_data:
+  redis_data:
+  static:
